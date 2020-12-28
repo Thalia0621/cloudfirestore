@@ -1,8 +1,13 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:practica5/models/product_dao.dart';
+import 'package:practica5/providers/firebase_providers.dart';
+import 'package:practica5/screen/list_products.dart';
+import 'package:path/path.dart';
 
 class NewProduct extends StatefulWidget {
   const NewProduct({Key key}) : super(key: key);
@@ -13,11 +18,18 @@ class NewProduct extends StatefulWidget {
 
 class _NewProductState extends State<NewProduct> {
   File _image;
+  String pathimage;
+  String fileName,url;var _uploadedFileURL;
   final picker = ImagePicker();
+  FirebaseProvider provider=FirebaseProvider();
+  TextEditingController edTxtclave=TextEditingController();
+    TextEditingController edtxtDescription=TextEditingController();
+  
 
   Future getImage() async {
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
     setState(() {
+      pathimage=pickedFile.path;
       if (pickedFile != null) {
         _image = File(pickedFile.path);
       } else {
@@ -26,12 +38,24 @@ class _NewProductState extends State<NewProduct> {
     });
 
       }
+
+
+    void uploadImageToFirebase() async {
+
+     fileName = DateTime.now().toString()+basename(pathimage);
+     FirebaseStorage storage = FirebaseStorage.instance;
+     Reference ref = storage.ref().child('images/$fileName');
+     UploadTask uploadTask = ref.putFile(_image);
+   _uploadedFileURL=await (await uploadTask).ref.getDownloadURL();
+      print ('ededeed**** '+_uploadedFileURL);
+        provider.saveproduct(ProductDAO(
+              model: edTxtclave.text,
+              description: edtxtDescription.text,
+              image: _uploadedFileURL));
+  }
+
   @override
   Widget build(BuildContext context) {
-     //final picker=ImagePicker();
-    String imagePath="";  
-    TextEditingController edTxtclave=TextEditingController();
-    TextEditingController edtxtDescription=TextEditingController();
  
     final imgFinal=_image == null
             ? Text('No image selected.')
@@ -51,7 +75,7 @@ class _NewProductState extends State<NewProduct> {
               ),
           ),
         );
-    final txtDescription= TextFormField(
+        final txtDescription= TextFormField(
           controller:edtxtDescription,
           keyboardType: TextInputType.text,
           decoration: InputDecoration(hintText: 'Description',
@@ -66,24 +90,23 @@ class _NewProductState extends State<NewProduct> {
         final btnimg=FloatingActionButton.extended(
             label: Text('Image'),
             icon: Icon(Icons.add_photo_alternate),
-            backgroundColor: Colors.pink,onPressed: () async {
-                          getImage();
-              
-             
-                    
+            backgroundColor: Colors.pink,
+            onPressed: () async {
+                getImage();      
             },);
-    
-       
-       
-      
         final btnsave=RaisedButton(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10)
           ),
           child: Text('Save',style: TextStyle(color: Colors.white),),
           color: Colors.cyan,
-          onPressed: (){        
-            });
+          onPressed: (){ 
+            
+           uploadImageToFirebase();
+           
+            
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ListProducts()));
+        });
     
     
         return Scaffold(
@@ -100,9 +123,9 @@ class _NewProductState extends State<NewProduct> {
                         txtClave,
                         SizedBox(height: 10),
                         txtDescription,
-                         SizedBox(height: 10),
-                         btnimg,
-                         SizedBox(height: 10),
+                        SizedBox(height: 10),
+                        btnimg,
+                        SizedBox(height: 10),
                         imgFinal,
                         SizedBox(height: 30),
                         btnsave,

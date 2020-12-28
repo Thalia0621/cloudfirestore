@@ -31,7 +31,7 @@ class _CardProductState extends State<CardProduct> {
         width: MediaQuery.of(context).size.width,
         child: FadeInImage(
           placeholder: AssetImage('assets/activity_indicator.gif'),
-          image: NetworkImage('https://i.pinimg.com/originals/20/64/3f/20643f91d9ff4a89892603de1f46b092.jpg'),
+          image: NetworkImage(widget.productDocument['image']==null?'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTn6SET2El-z4kXli3jVt9AbinH7v57jvxfuA&usqp=CAU':widget.productDocument['image']),
           fit: BoxFit.cover,
           fadeInDuration: Duration(milliseconds: 100),
           height: 230.0,
@@ -43,7 +43,10 @@ class _CardProductState extends State<CardProduct> {
         color: Colors.black,
         child: Row(
           children: [
-            Text(widget.productDocument['description'],
+            Text('key: '+widget.productDocument['model'],
+            style: TextStyle(color:  Colors.white),),
+            SizedBox(width: 20,),
+            Text('Description: '+widget.productDocument['description'],
             style: TextStyle(color:  Colors.white),)
           ],
         ),

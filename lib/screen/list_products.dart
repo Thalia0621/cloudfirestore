@@ -31,20 +31,6 @@ class _ListProductsState extends State<ListProducts> {
             Navigator.pushReplacement(context,MaterialPageRoute(builder: (context) => NewProduct()));
           })
         ],
-
-        // leading: MaterialButton(
-        //     child: Icon(Icons.add_circle, color: Colors.amber),
-        //     onPressed: () {
-        //       debugPrint("Agregando . . . ");
-        //     }),
-        //actions: <Widget>[
-        //  MaterialButton(
-        //      child: Icon(Icons.add_circle, color: Colors.amber),
-        //      onPressed: () {
-        //        Navigator.pushReplacement(context,
-        //            MaterialPageRoute(builder: (context) => AddProduct()));
-        //      })
-        //],
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: _firestore.getAllproducts(),
